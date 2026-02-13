@@ -206,13 +206,27 @@
             setTimeout(() => { toast.classList.add("opacity-0"); setTimeout(() => toast.remove(), 500); }, 4000);
         }
 
+        
         async function updateDashboard() {
-            try {
-                const res = await fetch("/api/update");
-                const data = await res.json();
-                data.filter(z => z.alert !== null).forEach(item => showToast(item.zone, item.alert));
-            } catch (err) {}
-        }
+          try {
+              const response = await fetch("/api/update");
+              const data = await response.json();
+              let activeAlerts = data.filter((z) => z.alert !== null);
+              
+              activeAlerts.forEach((item) => {
+                  // 1. We "square" the random number (Math.random() ** 2)
+                  // This creates an "Exponential" spread.
+                  // It makes long delays more common and "clumps" alerts together
+                  // rather than spreading them out like a clock.
+                  const organicDelay = (Math.pow(Math.random(), 2)) * 12000; 
+                  
+                  setTimeout(() => {
+                      showToast(item.zone, item.alert);
+                  }, organicDelay);
+              });
+              
+          } catch (err) {}
+      }
 
         window.onload = () => {
             initMap();
