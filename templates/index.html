@@ -10,6 +10,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
+        .tab-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         .leaflet-marker-icon { filter: hue-rotate(140deg) brightness(0.8) saturate(2) !important; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .sidebar-link.active { background: rgba(34, 197, 94, 0.2); color: #4ade80; border-right: 4px solid #4ade80; }
@@ -65,7 +73,9 @@
                       </div>
 
                       <div class="mt-1 text-[10px] text-slate-400 border-t border-white/5 pt-2 flex gap-3 flex-wrap items-center">
-                        <span>AQI: <b class="text-white">{{ item.metrics.aqi }}</b></span>
+                        <span>AQI: <b class="{% if item.metrics.aqi > 200 %}text-red-400{% elif item.metrics.aqi > 100 %}text-orange-400{% else %}text-green-400{% endif %}">
+                            {{ item.metrics.aqi }}
+                        </b></span>
                         <span>Temp: <b class="text-white">{{ item.metrics.temp }}°C</b></span>
                         <span>Wind: <b class="text-white">{{ item.metrics.wind_speed }} <small class="text-[8px] font-normal opacity-50">km/h</small></b></span>
                         <span>UV: <b class="text-white">{{ item.metrics.uv }}</b></span>
@@ -183,8 +193,26 @@
         function initMap() {
             map = L.map('map').setView([20.5937, 78.9629], 5);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+            
             const zones = {{ zones | tojson }};
-            zones.forEach(zone => L.marker([zone.lat, zone.lon]).addTo(map).bindPopup(`<b>${zone.name}</b>`));
+            
+            zones.forEach(z => {
+                // Create a cleaner, multi-line popup
+                const popupContent = `
+                    <div style="color: #1e293b; font-family: sans-serif;">
+                        <b style="font-size: 14px;">${z.name}</b><br>
+                        <span style="font-size: 10px; color: #64748b; font-weight: bold;">
+                            LAT: ${parseFloat(z.lat).toFixed(2)} | LON: ${parseFloat(z.lon).toFixed(2)}
+                        </span>
+                    </div>
+                `;
+                
+                L.marker([z.lat, z.lon])
+                    .addTo(map)
+                    .bindPopup(popupContent);
+            });
+
+            setTimeout(() => map.invalidateSize(), 400);
         }
 
         function showTab(tabName) {
@@ -208,25 +236,24 @@
 
         
         async function updateDashboard() {
-          try {
-              const response = await fetch("/api/update");
-              const data = await response.json();
-              let activeAlerts = data.filter((z) => z.alert !== null);
-              
-              activeAlerts.forEach((item) => {
-                  // 1. We "square" the random number (Math.random() ** 2)
-                  // This creates an "Exponential" spread.
-                  // It makes long delays more common and "clumps" alerts together
-                  // rather than spreading them out like a clock.
-                  const organicDelay = (Math.pow(Math.random(), 2)) * 12000; 
-                  
-                  setTimeout(() => {
-                      showToast(item.zone, item.alert);
-                  }, organicDelay);
-              });
-              
-          } catch (err) {}
-      }
+            try {
+                const response = await fetch("/api/update");
+                const data = await response.json();
+                let activeAlerts = data.filter((z) => z.alert !== null);
+                
+                activeAlerts.forEach((item) => {
+                    // REDUCE to 8000ms so it fits inside the 10000ms (10s) interval
+                    const organicDelay = Math.pow(Math.random(), 2) * 8000; 
+                    
+                    setTimeout(() => {
+                        showToast(item.zone, item.alert);
+                    }, organicDelay);
+                });
+                
+            } catch (err) {
+                console.error("Sync Idle...");
+            }
+        }
 
         window.onload = () => {
             initMap();

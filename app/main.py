@@ -28,32 +28,37 @@ def generate_synthetic_data():
         "noise": round(random.uniform(40, 100), 1)
     }
 
-# def evaluate_alerts(data):
-#     """Checks if any parameter exceeds the safe limit"""
-#     alerts = []
-#     if data["temp"] > THRESHOLDS["temp"]: alerts.append("Extreme Heat")
-#     if data["aqi"] > THRESHOLDS["aqi"]: alerts.append("High Pollution")
-#     if data["uv"] > THRESHOLDS["uv"]: alerts.append("High UV Radiation")
-#     if data["noise"] > THRESHOLDS["noise"]: alerts.append("Noise Violation")
-#     return ", ".join(alerts) if alerts else None
+def evaluate_alerts(data):
+    """
+    Evaluates telemetry data against centralized thresholds.
+    Returns a combined string of breaches or None.
+    """
+    alerts = []
+    
+    # 2. Dynamic Comparison
+    if data["aqi"] > THRESHOLDS["aqi"]: 
+        alerts.append("High Pollution")
+    if data["temp"] > THRESHOLDS["temp"]: 
+        alerts.append("Extreme Heat")
+    if data["uv"] > THRESHOLDS["uv"]: 
+        alerts.append("High UV Radiation")
+    if data["noise"] > THRESHOLDS["noise"]: 
+        alerts.append("Noise Violation")
+    if data["wind_speed"] > THRESHOLDS["wind_speed"]: 
+        alerts.append("High Wind Speed")
+    
+    # 3. Join logic for combined reporting
+    return ", ".join(alerts) if alerts else None
 
 def evaluate_alerts(data):
-    # 1. THE GATEKEEPER: Only proceed with checking 10% of the time
-    # This makes 'Incidents' feel like real, staggered events
-    if random.random() > 0.10: 
-        return None
-
-    # 2. THE THRESHOLD CHECK (Using your original logic)
     alerts = []
     if data["aqi"] > 280: alerts.append("Critical AQI")
     if data["temp"] > 42: alerts.append("Extreme Heat")
     if data["uv"] > 9: alerts.append("High UV")
     if data["noise"] > 85: alerts.append("Noise Violation")
-
-    # 3. THE CLEAN RETURN
-    # If multiple problems exist, we just take the first one 
-    # to keep the Toast UI clean and professional.
-    return alerts[0] if alerts else None
+    if data["wind_speed"] > 25: alerts.append("High Wind Speed")
+    
+    return ", ".join(alerts) if alerts else None
 
 # --- Routes ---
 
