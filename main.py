@@ -159,6 +159,14 @@ async def eco_chat(request: Request):
     except Exception as e:
         return {"response": f"Error: {str(e)}"}
     
+@app.get("/api/system/reset", response_class=RedirectResponse)
+async def system_reset():
+    """One-click URL to factory reset the application data."""
+    db.reset_and_reseed()
+    print("🧹 Database Factory Reset Successful.")
+    # Redirect back to dashboard with a success message
+    return RedirectResponse(url="/?msg=system_reset_complete", status_code=303)
+    
 if __name__ == "__main__":
     db.init_db()
     import uvicorn

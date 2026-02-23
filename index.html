@@ -15,20 +15,21 @@
 
     <style>
       /* Add this to your <style> section */
-.prose table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-.prose th, .prose td {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 8px;
-    text-align: left;
-}
-.prose ul {
-    list-style-type: disc;
-    margin-left: 20px;
-}
+      .prose table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      .prose th,
+      .prose td {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 8px;
+        text-align: left;
+      }
+      .prose ul {
+        list-style-type: disc;
+        margin-left: 20px;
+      }
       .tab-content {
         animation: fadeIn 0.5s ease-in-out;
       }
@@ -104,10 +105,21 @@
           <span>🤖</span> Eco-AI Advisor
         </button>
       </nav>
-      <div
-        class="p-6 border-t border-white/10 text-center text-[10px] text-slate-500"
-      >
-        Presentation: Feb 16, 2026
+      <div class="p-6 border-t border-white/10 text-center flex flex-col gap-2">
+        <p class="text-[10px] text-slate-500">Presentation: Feb 16, 2026</p>
+
+        <a
+          href="/api/system/reset"
+          onclick="
+            localStorage.removeItem('ecoChatHistory');
+            return confirm(
+              'Factory Reset: This will wipe all alerts, chat history, and reset zones. Proceed?',
+            );
+          "
+          class="text-[9px] text-slate-700 hover:text-red-500/50 transition-colors uppercase tracking-tighter"
+        >
+          ⚠️ Reset Engine
+        </a>
       </div>
     </aside>
 

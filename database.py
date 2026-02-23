@@ -119,3 +119,19 @@ def get_alert_by_id(alert_id):
     res = conn.execute("SELECT * FROM alerts WHERE id = ?", (alert_id,)).fetchone()
     conn.close()
     return dict(res) if res else None
+
+def reset_and_reseed():
+    """Wipes the entire database and restarts from scratch."""
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+    
+    # 1. Drop all tables
+    c.execute("DROP TABLE IF EXISTS zones")
+    c.execute("DROP TABLE IF EXISTS alerts")
+    c.execute("DROP TABLE IF EXISTS chat_history")
+    conn.commit()
+    conn.close()
+    
+    # 2. Re-initialize and Re-seed
+    init_db()
+    seed_zones()
