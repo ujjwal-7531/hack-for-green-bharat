@@ -94,7 +94,7 @@ from openai import OpenAI
 # 1. INITIALIZE HUGGING FACE CLIENT
 client = OpenAI(
     base_url="https://router.huggingface.co/v1", # Hugging Face Proxy
-    api_key="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" # Your Hugging Face token
+    api_key="hf_dummyapi" # Your Hugging Face token
 )
 
 @app.post("/api/chat")
